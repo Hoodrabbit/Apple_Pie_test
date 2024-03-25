@@ -12,8 +12,8 @@ public class ApplePie_score : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Score = GetComponent<TextMeshProUGUI>();
-        Score.text = "현재점수 : " + score_num;
+        //Score = GetComponent<TextMeshProUGUI>();
+        //Score.text = "현재점수" + score_num;
     }
 
     // Update is called once per frame
@@ -32,6 +32,7 @@ public class ApplePie_score : MonoBehaviour
     {
         Get_score = scr;
     }
+
 
     //IEnumerator Counting_Score()
     //{

@@ -38,7 +38,7 @@ public class Game_System : MonoBehaviour
     {
         Check_ChildCount();
         //Do_Merge();
-        Give_Score_num.text = "현재점수 : " + Apple_score;
+        //Give_Score_num.text = "현재점수 : " + Apple_score;
 
 
     }
@@ -59,6 +59,14 @@ public class Game_System : MonoBehaviour
             //if(Apples_List.)
         }
     }
+
+    public void Get_Score(int num)
+    {
+        Apple_score += num;
+        Give_Score_num.text = "현재점수\n" + Apple_score;
+    }
+
+
 
     //void Do_Merge()
     //{
@@ -101,14 +109,5 @@ public class Game_System : MonoBehaviour
             
     //    }
     //}
-
-    void Check_Apple(GameObject APPLE)
-    {
-        if(APPLE.tag == "Apple_02")
-        {
-            //근데 태그로 적용시키면 이게 다 순차적으로 확인하면서 태그가 계속 바뀜
-        }
-    }
-
 
 }

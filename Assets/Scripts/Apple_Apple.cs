@@ -11,6 +11,7 @@ public class Apple_Apple : MonoBehaviour
 
     public GameObject Score_text;
     public GameObject next_Apple;
+    public GameObject Merge_effect;
     public GameObject Crash_Obj;
     public Game_System G_S;
     Rigidbody2D apple_rigid;
@@ -22,7 +23,8 @@ public class Apple_Apple : MonoBehaviour
     { 
         None,
         Grab,
-        UnGrab
+        UnGrab,
+        Merged
     };
 
     public enum Apple_state
@@ -44,9 +46,15 @@ public class Apple_Apple : MonoBehaviour
 
     void Start()
     {
-       apple_rigid = GetComponent<Rigidbody2D>();
+        apple_rigid = GetComponent<Rigidbody2D>();
         G_S = GetComponentInParent<Game_System>();//그랩 되어있는 변수는 영향을 못받음 그래서 의미가 크게 없음
+        //Check_name();
         CheckState();
+        if (A_G_S == Apple_Grab_State.Merged)
+        {
+            Instantiate(Merge_effect, transform);
+        }
+
     }
 
     void Update()
@@ -104,17 +112,22 @@ public class Apple_Apple : MonoBehaviour
                     middle_pos = new Vector3((crash_obj.transform.position.x + transform.position.x) / 2, (crash_obj.transform.position.y + transform.position.y) / 2 - 1, 0); //중심값을 구해서 최대한 벽에 충돌하지 않도록
                     Merge = true;
                 }
-                
+
                 //lerp시켜서 일정 거리 이상 온다음에 destroy및 복제시키도록 하면 되지 않을까
+                //freezepostion 생각보다 괜찮은 것 같음
+                apple_rigid.constraints = RigidbodyConstraints2D.FreezePosition;
+                crash_obj.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePosition;
                 //Physics2D.IgnoreCollision(gameObject.GetComponentInChildren<CircleCollider2D>(), crash_obj.GetComponentInChildren<CircleCollider2D>(),true);
                 Vector3.Lerp(crash_obj.transform.position, middle_pos, 100* Time.deltaTime);
                 Vector3.Lerp(transform.position, middle_pos, 100 * Time.deltaTime);
                 aa += 2 * Time.deltaTime;
                 //Debug.Log(aa);
-                if(aa >=0.5f)//약간의 딜레이
+                if(aa >=0.3f)//약간의 딜레이
                 {
                     DestroyAndScore(crash_obj);
                     Instantiate(next_Apple, middle_pos, Quaternion.identity, transform.parent); // 이걸 시스템에서 만들어줌 사과 상태에 따라 복제가 될지 안될지 결정함 마지막 단계라면 복제를 당연히 못하니 하지 않도록
+                    //Instantiate(Merge_effect, middle_pos, Quaternion.identity).transform.parent = null;
+                    //생성되며서 Instantiate
                     DestroyAndScore(gameObject);
                     
                     crash = false;
@@ -132,7 +145,7 @@ public class Apple_Apple : MonoBehaviour
             crash = true;
             Crash_Obj = collision.gameObject;
             
-            Debug.Log("충돌");
+            //Debug.Log("충돌");
             //충돌 처리가 너무 많이 일어나기 때문에 이렇게 말고 생성될 때 점수를 올리는 식으로 하자
             //Apple_Contact(Crash_Obj);
             
@@ -201,7 +214,8 @@ public class Apple_Apple : MonoBehaviour
         {
             G_S = GetComponentInParent<Game_System>();
         }
-        G_S.Apple_score += myApple.GetComponent<Apple_Apple>().Apple_Score;
+        G_S.Get_Score(myApple.GetComponent<Apple_Apple>().Apple_Score);
+        //Debug.Log(G_S.Apple_score);
         Destroy(myApple);
 
             
