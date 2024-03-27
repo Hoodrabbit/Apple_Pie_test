@@ -10,7 +10,8 @@ public class Drop_Apple : MonoBehaviour
     public GameObject next_Apple;
 
     Show_Next_Apple S_N_A;
-    
+
+    bool already_clicked = false;
     bool isApple = false;
     bool DoRandom = true;
     int rand_num;
@@ -31,18 +32,48 @@ public class Drop_Apple : MonoBehaviour
 
     void IsApple_Grab()
     {
+        
+        if(Input.GetMouseButtonDown(0))
+        {
+            if (Mathf.Abs(Camera.main.ScreenToWorldPoint(Input.mousePosition).x) < 11.5f && isApple == false)
+            {
+                already_clicked = true;
+                
+
+            }
+        }
         if (Input.GetMouseButtonUp(0))
         {
-            //마우스 왼쪽 버튼을 누르고 들어올렸을 때 하위 오브젝트로 뒀던 사과 오브젝트를 시스템 오브젝트의 하위 오브젝트로 변경시킴
-            if (isApple == false)
+            if(Mathf.Abs(Camera.main.ScreenToWorldPoint(Input.mousePosition).x) <11.5f)
             {
-                isApple = true; //하위 오브젝트가 사과 오브젝트가 넘겨줬으므로 그걸 체크하기위해 사용한 isApple을 true시킴
+                //마우스 왼쪽 버튼을 누르고 들어올렸을 때 하위 오브젝트로 뒀던 사과 오브젝트를 시스템 오브젝트의 하위 오브젝트로 변경시킴
+                if (isApple == false)
+                {
+                    isApple = true; //하위 오브젝트가 사과 오브젝트가 넘겨줬으므로 그걸 체크하기위해 사용한 isApple을 true시킴
+                }
+                if (transform.childCount > 0)
+                {
+                    transform.GetChild(0).parent = System.transform;
+                }
+                already_clicked = false;
             }
-            if(transform.childCount > 0)
+            else if(already_clicked == true)
             {
-                transform.GetChild(0).parent = System.transform;
+                Debug.Log("이미 클릭했었음");
+                //마우스 왼쪽 버튼을 누르고 들어올렸을 때 하위 오브젝트로 뒀던 사과 오브젝트를 시스템 오브젝트의 하위 오브젝트로 변경시킴
+                if (isApple == false)
+                {
+                    isApple = true; //하위 오브젝트가 사과 오브젝트가 넘겨줬으므로 그걸 체크하기위해 사용한 isApple을 true시킴
+                }
+                if (transform.childCount > 0)
+                {
+                    transform.GetChild(0).parent = System.transform;
+                }
+                already_clicked = false;
             }
-            
+
+
+
         }
 
 

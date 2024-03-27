@@ -5,6 +5,7 @@ using UnityEngine;
 public class Apple_Apple : MonoBehaviour
 {
     public bool crash = false;
+    bool already_clicked = false;
     bool Merge = false;
 
     Vector3 middle_pos = Vector3.zero;
@@ -88,15 +89,40 @@ public class Apple_Apple : MonoBehaviour
         }
     }
 
-    void IsGrab()
+    public void IsGrab()
     {
+        
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Mathf.Abs(Camera.main.ScreenToWorldPoint(Input.mousePosition).x) < 12f)
+            {
+                already_clicked = true;
+                Debug.Log("어디부터 안됬는지");
+
+            }
+        }
+
         if (Input.GetMouseButton(0))
         {
-            Vector2 Test = new Vector2(Mathf.Clamp(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, -10.5f, 10.5f), transform.position.y);
-            //x값이 특정 범위를 벗어나면 그대로 맵 밖으로 벗어나기 때문에 일정 값 이하까지만 가능하도록
-            //Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
-            //지금 이렇게 만들면 이 위치로 바로 순간이동 해버리기 때문에 이렇게가 아니라 서서히 이동하는 것처럼 보이도록 해야함
-            transform.position = Vector2.Lerp(transform.position, Test, 5 * Time.deltaTime);
+            if (Mathf.Abs(Camera.main.ScreenToWorldPoint(Input.mousePosition).x) < 12f)
+            {
+                Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
+                Vector2 Test = new Vector2(Mathf.Clamp(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, -9.6f, 9.6f), transform.position.y);
+                //x값이 특정 범위를 벗어나면 그대로 맵 밖으로 벗어나기 때문에 일정 값 이하까지만 가능하도록
+                //지금 이렇게 만들면 이 위치로 바로 순간이동 해버리기 때문에 이렇게가 아니라 서서히 이동하는 것처럼 보이도록 해야함
+                transform.position = Vector2.Lerp(transform.position, Test, 20 * Time.deltaTime);
+                already_clicked = false;
+            }
+            if(already_clicked == true)
+            {
+                Debug.Log("왜 안되지");
+                Vector2 Test = new Vector2(Mathf.Clamp(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, -9.6f, 9.6f), transform.position.y);
+                //x값이 특정 범위를 벗어나면 그대로 맵 밖으로 벗어나기 때문에 일정 값 이하까지만 가능하도록
+                //Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition).x);
+                //지금 이렇게 만들면 이 위치로 바로 순간이동 해버리기 때문에 이렇게가 아니라 서서히 이동하는 것처럼 보이도록 해야함
+                transform.position = Vector2.Lerp(transform.position, Test, 20 * Time.deltaTime);
+                already_clicked = false;
+            }
         }
     }
 
@@ -112,27 +138,19 @@ public class Apple_Apple : MonoBehaviour
                     middle_pos = new Vector3((crash_obj.transform.position.x + transform.position.x) / 2, (crash_obj.transform.position.y + transform.position.y) / 2 - 1, 0); //중심값을 구해서 최대한 벽에 충돌하지 않도록
                     Merge = true;
                 }
-
-                //lerp시켜서 일정 거리 이상 온다음에 destroy및 복제시키도록 하면 되지 않을까
-                //freezepostion 생각보다 괜찮은 것 같음
                 apple_rigid.constraints = RigidbodyConstraints2D.FreezePosition;
                 crash_obj.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePosition;
-                //Physics2D.IgnoreCollision(gameObject.GetComponentInChildren<CircleCollider2D>(), crash_obj.GetComponentInChildren<CircleCollider2D>(),true);
                 Vector3.Lerp(crash_obj.transform.position, middle_pos, 100* Time.deltaTime);
                 Vector3.Lerp(transform.position, middle_pos, 100 * Time.deltaTime);
                 aa += 2 * Time.deltaTime;
-                //Debug.Log(aa);
                 if(aa >=0.3f)//약간의 딜레이
                 {
                     DestroyAndScore(crash_obj);
-                    Instantiate(next_Apple, middle_pos, Quaternion.identity, transform.parent); // 이걸 시스템에서 만들어줌 사과 상태에 따라 복제가 될지 안될지 결정함 마지막 단계라면 복제를 당연히 못하니 하지 않도록
-                    //Instantiate(Merge_effect, middle_pos, Quaternion.identity).transform.parent = null;
-                    //생성되며서 Instantiate
+                    Instantiate(next_Apple, middle_pos, Quaternion.identity, transform.parent);
                     DestroyAndScore(gameObject);
                     
                     crash = false;
                 }
-                //Debug.Log("실행됨");
                 
             }
         }
@@ -144,10 +162,6 @@ public class Apple_Apple : MonoBehaviour
         {
             crash = true;
             Crash_Obj = collision.gameObject;
-            
-            //Debug.Log("충돌");
-            //충돌 처리가 너무 많이 일어나기 때문에 이렇게 말고 생성될 때 점수를 올리는 식으로 하자
-            //Apple_Contact(Crash_Obj);
             
         }
     }
@@ -207,7 +221,6 @@ public class Apple_Apple : MonoBehaviour
         }
     }
 
-    //public void 
     void DestroyAndScore(GameObject myApple)
     {
         if(G_S == null)
@@ -215,19 +228,18 @@ public class Apple_Apple : MonoBehaviour
             G_S = GetComponentInParent<Game_System>();
         }
         G_S.Get_Score(myApple.GetComponent<Apple_Apple>().Apple_Score);
-        //Debug.Log(G_S.Apple_score);
         Destroy(myApple);
 
             
     }
 
-    void Set_State_num()
-    {
-        if(G_S.check_Now_State > (int)A_S)
-        {
-            G_S.check_Now_State = (int)A_S;
-        }
-    }
+    //void Set_State_num()
+    //{
+    //    if(G_S.check_Now_State > (int)A_S)
+    //    {
+    //        G_S.check_Now_State = (int)A_S;
+    //    }
+    //}
     
 
 
